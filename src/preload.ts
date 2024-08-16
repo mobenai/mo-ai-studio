@@ -14,7 +14,13 @@ const env = {
   getWsPort: () => ipcRenderer.invoke("getWsPort"),
 }
 
+const screenShareAPI = {
+  getSources: () => ipcRenderer.invoke("getSources"),
+  captureScreenshot: (sourceId: string) => ipcRenderer.invoke("captureScreenshot", sourceId),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
+  screenShare: screenShareAPI,
 })

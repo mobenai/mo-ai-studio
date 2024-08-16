@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron"
+import { app, BrowserWindow, ipcMain, dialog, desktopCapturer } from "electron"
 import path from "path"
 import http from "http"
 import fs from "fs/promises"
@@ -267,3 +267,37 @@ async function getDirectoryStructure(dirPath) {
 
   return structure
 }
+
+// 新增的屏幕共享相关的 IPC 处理器
+ipcMain.handle("getSources", async () => {
+  console.log("Getting sources...")
+  try {
+    const sources = await desktopCapturer.getSources({ types: ["screen", "window"] })
+    console.log("Sources:", sources)
+    return sources.map((source) => ({
+      id: source.id,
+      name: source.name,
+      thumbnail: source.thumbnail.toDataURL(),
+    }))
+  } catch (error) {
+    console.error("Error getting sources:", error)
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle("captureScreenshot", async (_, sourceId) => {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ["screen", "window"],
+      thumbnailSize: { width: 1920, height: 1080 },
+    })
+    const source = sources.find((s) => s.id === sourceId)
+    if (!source) {
+      throw new Error("Source not found")
+    }
+    return source.thumbnail.toDataURL()
+  } catch (error) {
+    console.error("Error capturing screenshot:", error)
+    return { success: false, error: error.message }
+  }
+})
