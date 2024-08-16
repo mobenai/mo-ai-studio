@@ -2,12 +2,45 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
-
+    <title>Mo-2 Application</title>
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+      }
+      #loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>正在加载，请稍候...</p>
+    </div>
+    <div id="content" style="display: none;">
+      <!-- 这里是你的主要内容 -->
+    </div>
     <script type="module" src="/src/renderer.ts"></script>
   </body>
 </html>

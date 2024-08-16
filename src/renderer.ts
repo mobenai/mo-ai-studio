@@ -27,3 +27,31 @@
  */
 
 import "./index.css"
+
+const loadingElement = document.getElementById("loading")
+const contentElement = document.getElementById("content")
+
+// 显示加载动画
+function showLoading() {
+  if (loadingElement) loadingElement.style.display = "flex"
+  if (contentElement) contentElement.style.display = "none"
+}
+
+// 隐藏加载动画
+function hideLoading() {
+  if (loadingElement) loadingElement.style.display = "none"
+  if (contentElement) contentElement.style.display = "block"
+}
+
+// 初始显示加载动画
+showLoading()
+
+// 监听页面加载完成事件
+window.addEventListener("load", () => {
+  hideLoading()
+})
+
+// 如果加载时间过长，可以设置一个超时
+setTimeout(() => {
+  hideLoading()
+}, 10000) // 10秒后强制隐藏加载动画
