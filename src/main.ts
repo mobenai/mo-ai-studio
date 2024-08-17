@@ -122,8 +122,6 @@ app.on("activate", () => {
 })
 
 // 文件操作相关的 IPC 处理器
-const allowedExtensions = [".txt", ".md", ".mdx", ".js", ".ts", ".json", ".html", ".css"]
-
 ipcMain.handle("readFiles", async (_, filePaths) => {
   if (!Array.isArray(filePaths) || filePaths.length === 0) {
     return { success: false, error: "Invalid file paths" }
@@ -134,10 +132,6 @@ ipcMain.handle("readFiles", async (_, filePaths) => {
         if (typeof filePath !== "string" || filePath.trim() === "") {
           throw new Error(`Invalid file path: ${filePath}`)
         }
-        const ext = path.extname(filePath).toLowerCase()
-        // if (!allowedExtensions.includes(ext)) {
-        //   throw new Error(`Unsupported file type: ${filePath}`)
-        // }
         const content = await fs.readFile(filePath, "utf-8")
         return { path: filePath, content }
       })
@@ -148,20 +142,41 @@ ipcMain.handle("readFiles", async (_, filePaths) => {
   }
 })
 
+let writeFileCallCount = 0
+
 ipcMain.handle("writeFile", async (_, filePath, content) => {
+  writeFileCallCount++
+  console.log(`writeFile called (${writeFileCallCount}): ${new Date().toISOString()} - Path: ${filePath}`)
+
   if (typeof filePath !== "string" || filePath.trim() === "") {
+    console.log(`Invalid file path: ${filePath}`)
     return { success: false, error: "Invalid file path" }
   }
   if (typeof content !== "string") {
+    console.log(`Invalid content for file: ${filePath}`)
     return { success: false, error: "Invalid content" }
   }
   try {
-    const ext = path.extname(filePath).toLowerCase()
-    if (!allowedExtensions.includes(ext)) {
-      return { success: false, error: `Unsupported file type: ${filePath}` }
-    }
+    // 确保目录存在
+    const dir = path.dirname(filePath)
+    await fs.mkdir(dir, { recursive: true })
+
     await fs.writeFile(filePath, content, "utf-8")
+    console.log(`File written successfully: ${filePath}`)
     return { success: true }
+  } catch (error) {
+    console.error(`Error writing file ${filePath}:`, error)
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle("readFile", async (_, filePath) => {
+  if (typeof filePath !== "string" || filePath.trim() === "") {
+    return { success: false, error: "Invalid file path" }
+  }
+  try {
+    const content = await fs.readFile(filePath, "utf-8")
+    return { success: true, content }
   } catch (error) {
     return { success: false, error: error.message }
   }
@@ -244,6 +259,10 @@ ipcMain.handle("getDirectoryStructure", async (_, dirPath) => {
   }
 })
 
+ipcMain.handle("getAbsolutePath", (_, filePath) => {
+  return path.resolve(filePath)
+})
+
 async function getDirectoryStructure(dirPath) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true })
   const structure = []
@@ -270,10 +289,8 @@ async function getDirectoryStructure(dirPath) {
 
 // 新增的屏幕共享相关的 IPC 处理器
 ipcMain.handle("getSources", async () => {
-  console.log("Getting sources...")
   try {
     const sources = await desktopCapturer.getSources({ types: ["screen", "window"] })
-    console.log("Sources:", sources)
     return sources.map((source) => ({
       id: source.id,
       name: source.name,
