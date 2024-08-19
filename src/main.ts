@@ -48,8 +48,11 @@ const createWindow = async () => {
     },
   })
 
-  // 先加载 index.html
-  await mainWindow.loadFile("index.html")
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+  } else {
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+  }
 
   // 查找可用端口
   port = await findAvailablePort(3000)
@@ -89,10 +92,13 @@ const createWindow = async () => {
     mainWindow.webContents.openDevTools()
   }
 
-  // 在生产环境中禁用打开 DevTools 的快捷键
+  // 禁用刷新快捷键和开发者工具快捷键
   if (!isDev) {
     mainWindow.webContents.on("before-input-event", (event, input) => {
-      if (input.key.toLowerCase() === "i" && input.control && input.shift) {
+      const isRefresh = (input.key.toLowerCase() === "r" && (input.control || input.meta)) || input.key === "F5"
+      const isDevTools = input.key.toLowerCase() === "i" && input.control && input.shift
+
+      if (isRefresh || (!isDev && isDevTools)) {
         event.preventDefault()
       }
     })

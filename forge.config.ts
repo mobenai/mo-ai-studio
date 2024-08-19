@@ -12,20 +12,7 @@ const config: ForgeConfig = {
     asar: true,
   },
   rebuildConfig: {},
-  makers: [
-    {
-      name: "@electron-forge/maker-dmg",
-      config: {
-        background: "./assets/dmg.png",
-        debug: true,
-        overwrite: true,
-      },
-    },
-    // new MakerSquirrel({}),
-    // new MakerZIP({}, ["darwin"]),
-    // new MakerRpm({}),
-    // new MakerDeb({}),
-  ],
+  makers: [new MakerSquirrel({}), new MakerZIP({}, ["darwin"]), new MakerRpm({}), new MakerDeb({})],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
