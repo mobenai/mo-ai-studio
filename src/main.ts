@@ -12,7 +12,7 @@ if (require("electron-squirrel-startup")) {
   app.quit()
 }
 
-const isDev = process.argv.slice(2)[0] === "--dev"
+let isDev = process.argv.slice(2)[0] === "--dev"
 let port = 3000
 console.log(isDev)
 
@@ -74,8 +74,11 @@ const createWindow = async () => {
   let url
   if (isDev) {
     url = `http://localhost:8080/mo`
+    // url = `https://www.mobenai.com.cn/mo`
+
   } else {
     url = `https://www.mobenai.com.cn/mo`
+    // url = `http://localhost:8080/mo`
   }
 
   // 通知渲染进程 WebSocket 服务器已启动

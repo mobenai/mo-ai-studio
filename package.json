@@ -1,6 +1,6 @@
 {
-  "name": "my-new-app",
-  "productName": "my-new-app",
+  "name": "Mo",
+  "productName": "Mo",
   "version": "1.0.1",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
