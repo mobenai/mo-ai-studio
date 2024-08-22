@@ -1,3 +1,4 @@
+
 import { app, BrowserWindow, ipcMain, dialog, desktopCapturer } from "electron"
 import path from "path"
 import http from "http"
@@ -272,11 +273,18 @@ ipcMain.handle("getAbsolutePath", (_, filePath) => {
   return path.resolve(filePath)
 })
 
+function shouldIgnore(name: string): boolean {
+  const ignoredDirs = ['node_modules', '.git', 'build', 'dist']
+  return ignoredDirs.includes(name) || name.startsWith('.')
+}
+
 async function getDirectoryStructure(dirPath) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true })
   const structure = []
 
   for (const entry of entries) {
+    if (shouldIgnore(entry.name)) continue
+
     const fullPath = path.join(dirPath, entry.name)
     if (entry.isDirectory()) {
       structure.push({
@@ -327,3 +335,4 @@ ipcMain.handle("captureScreenshot", async (_, sourceId) => {
     return { success: false, error: error.message }
   }
 })
+      
