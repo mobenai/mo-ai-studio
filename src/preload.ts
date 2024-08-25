@@ -10,6 +10,9 @@ const fileAPI = {
   selectFiles: () => ipcRenderer.invoke("selectFiles"),
   getDirectoryStructure: (dirPath: string) => ipcRenderer.invoke("getDirectoryStructure", dirPath),
   getAbsolutePath: (filePath: string) => ipcRenderer.invoke("getAbsolutePath", filePath),
+  readDirectoryRecursive: (dirPath: string) => ipcRenderer.invoke("readDirectoryRecursive", dirPath),
+  executePandoc: (inputFile: string, outputFile: string, fromFormat: string, toFormat: string) =>
+    ipcRenderer.invoke("executePandoc", inputFile, outputFile, fromFormat, toFormat),
 }
 
 const env = {
