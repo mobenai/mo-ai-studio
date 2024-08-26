@@ -9,6 +9,7 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses"
 
 const config: ForgeConfig = {
   packagerConfig: {
+    osxSign: {}, // object must exist even if empty
     asar: true,
     icon: "./images/icon.icns", // no file extension required
     extraResource: ["./bin/pandoc"],

@@ -2,9 +2,10 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Mo-2 Application</title>
+    <title>Mo Application</title>
     <style>
-      body, html {
+      body,
+      html {
         margin: 0;
         padding: 0;
         height: 100%;
@@ -28,8 +29,12 @@
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -38,7 +43,7 @@
       <div class="spinner"></div>
       <p>正在加载，请稍候...</p>
     </div>
-    <div id="content" style="display: none;">
+    <div id="content" style="display: none">
       <!-- 这里是你的主要内容 -->
     </div>
     <script type="module" src="/src/renderer.ts"></script>
