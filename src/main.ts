@@ -103,10 +103,10 @@ const setupWindowBehavior = (mainWindow: BrowserWindow) => {
 const createWindow = async () => {
   const mainWindow = createMainWindow()
 
-  port = await findAvailablePort(3000)
-  await initializeServer(port)
+  // port = await findAvailablePort(3000)
+  // await initializeServer(port)
 
-  mainWindow.webContents.send("ws-server-started", port)
+  // mainWindow.webContents.send("ws-server-started", port)
 
   if (isDev) {
     mainWindow.loadURL(`http://localhost:8080/mo`)
