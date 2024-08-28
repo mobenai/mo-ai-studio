@@ -1,10 +1,10 @@
-
 import { app, BrowserWindow, ipcMain, dialog, desktopCapturer } from "electron"
 import path from "path"
 import http from "http"
 import fs from "fs/promises"
 import WebSocket from "ws"
 import net from "net"
+import express from "express"
 import httpServer from "./httpServer"
 import { initializeWebSocketServer } from "./wsServer"
 import { exec } from "child_process"
@@ -16,6 +16,7 @@ if (require("electron-squirrel-startup")) {
 
 const isDev = process.argv.includes("--dev")
 let port = 3000
+let staticServer: http.Server | null = null
 
 const findAvailablePort = async (startPort: number): Promise<number> => {
   return new Promise((resolve, reject) => {
@@ -45,30 +46,39 @@ const initializeServer = async (port: number) => {
   })
 }
 
+const createStaticServer = (port: number) => {
+  const app = express()
+  const staticPath = path.join(__dirname, "../../../", "dist")
+  app.use(express.static(staticPath))
+
+  // Handle 404 errors by redirecting to index.html
+  app.use((req, res, next) => {
+    res.sendFile(path.join(staticPath, "index.html"))
+  })
+
+  return new Promise<void>((resolve) => {
+    staticServer = app.listen(port, () => {
+      console.log(`Static server running at http://localhost:${port}`)
+      resolve()
+    })
+  })
+}
 const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 2048,
-    height: 1448,
+    width: 1024,
+    height: 768,
     show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
       webSecurity: false,
       preload: path.join(__dirname, "preload.js"),
-      devTools: isDev,
+      // devTools: isDev,
       partition: "persist:main",
     },
   })
 
   return mainWindow
-}
-
-const loadAppUrl = async (mainWindow: BrowserWindow) => {
-  const url = isDev
-    ? `http://localhost:8080/mo`
-    : `https://www.mobenai.com.cn/mo`
-
-  await mainWindow.loadURL(url)
 }
 
 const setupWindowBehavior = (mainWindow: BrowserWindow) => {
@@ -77,14 +87,13 @@ const setupWindowBehavior = (mainWindow: BrowserWindow) => {
   if (isDev) {
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.webContents.on("before-input-event", (event, input) => {
-      const isRefresh = (input.key.toLowerCase() === "r" && (input.control || input.meta)) || input.key === "F5"
-      const isDevTools = input.key.toLowerCase() === "i" && input.control && input.shift
-
-      if (isRefresh || isDevTools) {
-        event.preventDefault()
-      }
-    })
+    // mainWindow.webContents.on("before-input-event", (event, input) => {
+    //   const isRefresh = (input.key.toLowerCase() === "r" && (input.control || input.meta)) || input.key === "F5"
+    //   const isDevTools = input.key.toLowerCase() === "i" && input.control && input.shift
+    //   if (isRefresh || isDevTools) {
+    //     event.preventDefault()
+    //   }
+    // })
   }
 }
 
@@ -96,7 +105,19 @@ const createWindow = async () => {
 
   mainWindow.webContents.send("ws-server-started", port)
 
-  await loadAppUrl(mainWindow)
+  if (isDev) {
+    // mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+
+    mainWindow.loadURL(`http://localhost:8080/mo`)
+  } else {
+    // const staticPort = await findAvailablePort(8080)
+    // await createStaticServer(staticPort)
+    // mainWindow.loadURL(`http://localhost:${staticPort}/mo`)
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+
+    mainWindow.loadURL(`http://www.mobenai.com.cn/mo`)
+  }
+
   setupWindowBehavior(mainWindow)
 }
 
@@ -117,6 +138,11 @@ app.on("activate", () => {
   }
 })
 
+app.on("quit", () => {
+  if (staticServer) {
+    staticServer.close()
+  }
+})
+
 // Export necessary functions and variables for IPC handlers
 export { port, isDev }
-      

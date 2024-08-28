@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron-forge start -- --dev",
     "package": "electron-forge package",
-    "make": "electron-forge make",
+    "make": "electron-forge make --arch=\"arm64,x64\"",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
