@@ -68,6 +68,9 @@ const createMainWindow = () => {
     width: 1024,
     height: 768,
     show: false,
+    backgroundColor: "#374151",
+    roundedCorners: true,
+    useContentSize: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
@@ -106,14 +109,12 @@ const createWindow = async () => {
   mainWindow.webContents.send("ws-server-started", port)
 
   if (isDev) {
-    // mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
-
     mainWindow.loadURL(`http://localhost:8080/mo`)
   } else {
     // const staticPort = await findAvailablePort(8080)
     // await createStaticServer(staticPort)
     // mainWindow.loadURL(`http://localhost:${staticPort}/mo`)
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+    // mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
 
     mainWindow.loadURL(`http://www.mobenai.com.cn/mo`)
   }

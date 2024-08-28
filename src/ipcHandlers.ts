@@ -1,4 +1,3 @@
-
 import { ipcMain, dialog, desktopCapturer, app } from "electron"
 import fs from "fs/promises"
 import path from "path"
@@ -261,5 +260,16 @@ export const setupIpcHandlers = () => {
       })
     })
   })
+
+  ipcMain.handle("undoGitCommit", async () => {
+    return new Promise((resolve, reject) => {
+      exec("git reset --soft HEAD~1", (error, stdout, stderr) => {
+        if (error) {
+          reject({ success: false, error: error.message })
+        } else {
+          resolve({ success: true, message: "Git commit undone successfully" })
+        }
+      })
+    })
+  })
 }
-      
