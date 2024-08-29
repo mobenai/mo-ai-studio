@@ -6,6 +6,7 @@
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start -- --dev",
+    "make:debug": "electron-forge make --arch=\"arm64,x64\" --debug",
     "package": "electron-forge package",
     "make": "electron-forge make --arch=\"arm64,x64\"",
     "publish": "electron-forge publish",

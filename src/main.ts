@@ -15,6 +15,7 @@ if (require("electron-squirrel-startup")) {
 }
 
 const isDev = process.argv.includes("--dev")
+const isDebugger = process.argv.includes("--debugger")
 let port = 3000
 let staticServer: http.Server | null = null
 
@@ -63,6 +64,7 @@ const createStaticServer = (port: number) => {
     })
   })
 }
+
 const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1024,
@@ -76,7 +78,7 @@ const createMainWindow = () => {
       contextIsolation: true,
       webSecurity: false,
       preload: path.join(__dirname, "preload.js"),
-      // devTools: isDev,
+      devTools: isDev || isDebugger,
       partition: "persist:main",
     },
   })
@@ -87,44 +89,63 @@ const createMainWindow = () => {
 const setupWindowBehavior = (mainWindow: BrowserWindow) => {
   mainWindow.show()
 
-  if (isDev) {
+  if (isDev || isDebugger) {
     mainWindow.webContents.openDevTools()
   } else {
-    // mainWindow.webContents.on("before-input-event", (event, input) => {
-    //   const isRefresh = (input.key.toLowerCase() === "r" && (input.control || input.meta)) || input.key === "F5"
-    //   const isDevTools = input.key.toLowerCase() === "i" && input.control && input.shift
-    //   if (isRefresh || isDevTools) {
-    //     event.preventDefault()
-    //   }
-    // })
+    mainWindow.webContents.on("before-input-event", (event, input) => {
+      const isRefresh = (input.key.toLowerCase() === "r" && (input.control || input.meta)) || input.key === "F5"
+      const isDevTools = input.key.toLowerCase() === "i" && input.control && input.shift
+      if (isRefresh || isDevTools) {
+        event.preventDefault()
+      }
+    })
   }
 }
 
 const createWindow = async () => {
   const mainWindow = createMainWindow()
 
-  // port = await findAvailablePort(3000)
-  // await initializeServer(port)
-
-  // mainWindow.webContents.send("ws-server-started", port)
-
   if (isDev) {
     mainWindow.loadURL(`http://localhost:8080/mo`)
   } else {
-    // const staticPort = await findAvailablePort(8080)
-    // await createStaticServer(staticPort)
-    // mainWindow.loadURL(`http://localhost:${staticPort}/mo`)
-    // mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
-
     mainWindow.loadURL(`http://www.mobenai.com.cn/mo`)
   }
 
   setupWindowBehavior(mainWindow)
 }
 
+// 新增：创建子窗口的函数
+const createChildWindow = () => {
+  const childWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    parent: BrowserWindow.getFocusedWindow(),
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: true,
+      webSecurity: false,
+      preload: path.join(__dirname, "preload.js"),
+      devTools: isDev || isDebugger,
+    },
+  })
+
+  if (isDev) {
+    childWindow.loadURL(`http://localhost:8080/mo`)
+  } else {
+    childWindow.loadURL(`http://www.mobenai.com.cn/mo`)
+  }
+
+  if (isDev || isDebugger) {
+    childWindow.webContents.openDevTools()
+  }
+}
+
 app.on("ready", () => {
   createWindow()
   setupIpcHandlers()
+
+  // 新增：设置 IPC 监听器来创建子窗口
+  ipcMain.on("open-child-window", createChildWindow)
 })
 
 app.on("window-all-closed", () => {

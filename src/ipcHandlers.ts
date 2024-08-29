@@ -9,7 +9,7 @@ const shouldIgnore = (name: string): boolean => {
   return ignoredDirs.includes(name) || name.startsWith(".")
 }
 
-const getDirectoryStructure = async (dirPath: string): Promise<any[]> => {
+const getDirectoryStructure = async (dirPath: string, processedPaths = new Set<string>()): Promise<any[]> => {
   const entries = await fs.readdir(dirPath, { withFileTypes: true })
   const structure = []
 
@@ -17,11 +17,16 @@ const getDirectoryStructure = async (dirPath: string): Promise<any[]> => {
     if (shouldIgnore(entry.name)) continue
 
     const fullPath = path.join(dirPath, entry.name)
+    
+    // Check if this path has already been processed
+    if (processedPaths.has(fullPath)) continue
+    processedPaths.add(fullPath)
+
     if (entry.isDirectory()) {
       structure.push({
         name: entry.name,
         type: "directory",
-        children: await getDirectoryStructure(fullPath),
+        children: await getDirectoryStructure(fullPath, processedPaths),
       })
     } else {
       structure.push({

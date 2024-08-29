@@ -25,8 +25,14 @@ const screenShareAPI = {
   captureScreenshot: (sourceId: string) => ipcRenderer.invoke("captureScreenshot", sourceId),
 }
 
+// 新增：窗口管理 API
+const windowAPI = {
+  openChildWindow: () => ipcRenderer.send("open-child-window"),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
   screenShare: screenShareAPI,
+  window: windowAPI, // 新增
 })
