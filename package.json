@@ -12,6 +12,10 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kinop112365362/mo-ai-stuidio.git"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/maker-deb": "^7.4.0",
@@ -50,6 +54,7 @@
     "express": "^4.19.2",
     "ignore": "^5.3.2",
     "node-fetch": "2",
+    "update-electron-app": "^3.0.0",
     "ws": "^8.18.0"
   }
 }
