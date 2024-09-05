@@ -277,4 +277,26 @@ export const setupIpcHandlers = () => {
       })
     })
   })
+
+  ipcMain.handle("getFileStats", async (_, filePath) => {
+    if (typeof filePath !== "string" || filePath.trim() === "") {
+      return { success: false, error: "Invalid file path" }
+    }
+    try {
+      const stats = await fs.stat(filePath)
+      return {
+        success: true,
+        stats: {
+          size: stats.size,
+          isDirectory: stats.isDirectory(),
+          isFile: stats.isFile(),
+          createdAt: stats.birthtime,
+          modifiedAt: stats.mtime,
+          accessedAt: stats.atime,
+        },
+      }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
 }

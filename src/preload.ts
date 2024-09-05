@@ -14,6 +14,7 @@ const fileAPI = {
   executePandoc: (inputFile: string, outputFile: string, fromFormat: string, toFormat: string) =>
     ipcRenderer.invoke("executePandoc", inputFile, outputFile, fromFormat, toFormat),
   undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
+  getFileStats: (filePath: string) => ipcRenderer.invoke("getFileStats", filePath),
 }
 
 const env = {
@@ -25,7 +26,6 @@ const screenShareAPI = {
   captureScreenshot: (sourceId: string) => ipcRenderer.invoke("captureScreenshot", sourceId),
 }
 
-// 新增：窗口管理 API
 const windowAPI = {
   openChildWindow: () => ipcRenderer.send("open-child-window"),
 }
@@ -34,5 +34,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
   screenShare: screenShareAPI,
-  window: windowAPI, // 新增
+  window: windowAPI,
 })
