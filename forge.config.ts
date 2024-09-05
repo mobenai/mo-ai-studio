@@ -9,6 +9,12 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses"
 
 const config: ForgeConfig = {
   packagerConfig: {
+    osxSign: {},
+    osxNotarize: {
+      appleId: "690986500@qq.com",
+      appleIdPassword: "vljh-wuyx-kdnv-rxrk",
+      teamId: "Z33MF3XAXB",
+    },
     asar: true,
     icon: "./images/icon.icns", // no file extension required
     // extraResource: [],
