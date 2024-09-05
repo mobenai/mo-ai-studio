@@ -1,8 +1,9 @@
 {
-  "name": "Mo",
-  "productName": "Mo",
-  "version": "1.0.1",
-  "description": "My Electron application description",
+  "name": "mo-ai-studio",
+  "private": true,
+  "productName": "mo-ai-studio",
+  "version": "1.0.2",
+  "description": "mo ai studio local ai agent for everyone",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start -- --dev",
