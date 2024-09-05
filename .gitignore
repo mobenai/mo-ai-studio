@@ -91,3 +91,4 @@ typings/
 # Electron-Forge
 out/
 
+bin/
