@@ -5,8 +5,8 @@ import { exec } from "child_process"
 import { port, isDev } from "./main"
 
 const shouldIgnore = (name: string): boolean => {
-  const ignoredDirs = ["node_modules", ".git", "build", "dist", ".DS_Store"]
-  return ignoredDirs.includes(name) || name.startsWith(".")
+  const ignoredDirs = ["node_modules", ".git", "build", "dist"]
+  return ignoredDirs.includes(name)
 }
 
 const getDirectoryStructure = async (dirPath: string, processedPaths = new Set<string>()): Promise<any[]> => {
@@ -162,7 +162,7 @@ export const setupIpcHandlers = () => {
   ipcMain.handle("selectDirectory", async () => {
     try {
       const result = await dialog.showOpenDialog({
-        properties: ["openDirectory"],
+        properties: ["openDirectory", "showHiddenFiles"],
       })
 
       if (result.canceled) {
@@ -181,7 +181,7 @@ export const setupIpcHandlers = () => {
   ipcMain.handle("selectFiles", async () => {
     try {
       const result = await dialog.showOpenDialog({
-        properties: ["openFile", "multiSelections"],
+        properties: ["openFile", "multiSelections", "showHiddenFiles"],
       })
 
       if (result.canceled) {
