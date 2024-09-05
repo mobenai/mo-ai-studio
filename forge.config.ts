@@ -24,8 +24,8 @@ const config: ForgeConfig = {
       name: "@electron-forge/publisher-github",
       config: {
         repository: {
-          owner: "me",
-          name: "awesome-thing",
+          owner: "kinop112365362",
+          name: "mo-ai-stuidio",
         },
         prerelease: true,
       },

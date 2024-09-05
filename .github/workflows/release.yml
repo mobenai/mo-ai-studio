@@ -1,0 +1,59 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main # 只有当推送到 main 分支时才触发
+  pull_request:
+    branches:
+      - main # 也可以配置 PR 触发
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest] # 支持多平台打包
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Step 3: Cache node_modules
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 5: Build the app
+      - name: Build the Electron app
+        run: npm run make
+
+      # Step 6: Upload the build artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: electron-app
+          path: out/make/**/* # out/make 为 Electron Forge 默认打包路径
+
+      # Step 7: Publish to GitHub Releases (only on main branch)
+      - name: Publish to GitHub Releases
+        if: github.ref == 'refs/heads/main'
+        run: npx electron-builder --publish=always
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
