@@ -19,6 +19,18 @@ const config: ForgeConfig = {
     icon: "./images/icon.icns", // no file extension required
     // extraResource: [],
   },
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "me",
+          name: "awesome-thing",
+        },
+        prerelease: true,
+      },
+    },
+  ],
   rebuildConfig: {},
 
   makers: [new MakerSquirrel({}), new MakerZIP({}), new MakerRpm({}), new MakerDeb({})],

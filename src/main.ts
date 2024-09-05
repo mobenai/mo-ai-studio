@@ -9,6 +9,9 @@ import httpServer from "./httpServer"
 import { initializeWebSocketServer } from "./wsServer"
 import { exec } from "child_process"
 import { setupIpcHandlers } from "./ipcHandlers"
+import { updateElectronApp } from "update-electron-app"
+
+updateElectronApp() // additional configuration options available
 
 if (require("electron-squirrel-startup")) {
   app.quit()
