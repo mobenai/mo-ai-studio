@@ -15,6 +15,7 @@ const fileAPI = {
     ipcRenderer.invoke("executePandoc", inputFile, outputFile, fromFormat, toFormat),
   undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
   getFileStats: (filePath: string) => ipcRenderer.invoke("getFileStats", filePath),
+  createDirectory: () => ipcRenderer.invoke("createDirectory"),
 }
 
 const env = {

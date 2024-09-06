@@ -299,4 +299,24 @@ export const setupIpcHandlers = () => {
       return { success: false, error: error.message }
     }
   })
+
+  ipcMain.handle("createDirectory", async () => {
+    try {
+      const result = await dialog.showSaveDialog({
+        title: "Create New Directory",
+        buttonLabel: "Create",
+        properties: ["createDirectory", "showHiddenFiles"],
+      })
+
+      if (result.canceled) {
+        return { success: false, error: "User cancelled the operation" }
+      }
+
+      const dirPath = result.filePath
+      await fs.mkdir(dirPath, { recursive: true })
+      return { success: true, path: dirPath }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
 }
