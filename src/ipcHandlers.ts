@@ -1,8 +1,10 @@
-import { ipcMain, dialog, desktopCapturer, app } from "electron"
+import { ipcMain, dialog, desktopCapturer, app, BrowserWindow } from "electron"
+
 import fs from "fs/promises"
 import path from "path"
 import { exec } from "child_process"
 import { port, isDev } from "./main"
+import simpleGit from "simple-git"
 
 const shouldIgnore = (name: string): boolean => {
   const ignoredDirs = ["node_modules", ".git", "build", "dist"]
@@ -17,7 +19,7 @@ const getDirectoryStructure = async (dirPath: string, processedPaths = new Set<s
     if (shouldIgnore(entry.name)) continue
 
     const fullPath = path.join(dirPath, entry.name)
-    
+
     // Check if this path has already been processed
     if (processedPaths.has(fullPath)) continue
     processedPaths.add(fullPath)
@@ -317,6 +319,49 @@ export const setupIpcHandlers = () => {
       return { success: true, path: dirPath }
     } catch (error) {
       return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle("cloneGitRepository", async (_, repoUrl, targetPath, progressCallback) => {
+    if (
+      typeof repoUrl !== "string" ||
+      repoUrl.trim() === "" ||
+      typeof targetPath !== "string" ||
+      targetPath.trim() === ""
+    ) {
+      return { success: false, error: "Invalid repository URL or target path" }
+    }
+    try {
+      const git = simpleGit()
+      await git.clone(repoUrl, targetPath, ["--progress"], (progress) => {
+        const match = progress.match(/Receiving objects:\s+(\d+)%/)
+        if (match) {
+          const percent = parseInt(match[1], 10)
+          progressCallback(percent)
+        }
+      })
+      return { success: true, path: targetPath }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+  ipcMain.handle("promptGitRepoUrl", async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const result = await dialog.showInputBox(win, {
+      title: "Clone Git Repository",
+      message: "Enter Git repository URL:",
+      buttons: ["OK", "Cancel"],
+      defaultId: 0,
+      cancelId: 1,
+      type: "question",
+      inputLabel: "Repository URL",
+      inputValue: "",
+    })
+
+    if (result.response === 0 && result.inputValue) {
+      return { success: true, url: result.inputValue }
+    } else {
+      return { success: false, url: null }
     }
   })
 }

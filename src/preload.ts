@@ -16,6 +16,9 @@ const fileAPI = {
   undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
   getFileStats: (filePath: string) => ipcRenderer.invoke("getFileStats", filePath),
   createDirectory: () => ipcRenderer.invoke("createDirectory"),
+  cloneGitRepository: (repoUrl: string, targetPath: string) =>
+    ipcRenderer.invoke("cloneGitRepository", repoUrl, targetPath),
+  promptGitRepoUrl: () => ipcRenderer.invoke("promptGitRepoUrl"),
 }
 
 const env = {
