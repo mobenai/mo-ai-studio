@@ -34,9 +34,14 @@ const windowAPI = {
   openChildWindow: () => ipcRenderer.send("open-child-window"),
 }
 
+const updateAPI = {
+  checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
   screenShare: screenShareAPI,
   window: windowAPI,
+  update: updateAPI,
 })

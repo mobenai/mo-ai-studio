@@ -5,6 +5,7 @@ import path from "path"
 import { exec } from "child_process"
 import { port, isDev } from "./main"
 import simpleGit from "simple-git"
+import { updateElectronApp } from "update-electron-app"
 
 const shouldIgnore = (name: string): boolean => {
   const ignoredDirs = ["node_modules", ".git", "build", "dist"]
@@ -363,5 +364,11 @@ export const setupIpcHandlers = () => {
     } else {
       return { success: false, url: null }
     }
+  })
+
+  // 新增：处理检查更新的请求
+  ipcMain.handle("check-for-updates", () => {
+    updateElectronApp()
+    return { success: true, message: "Update check initiated" }
   })
 }

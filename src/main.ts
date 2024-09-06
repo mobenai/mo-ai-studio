@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, desktopCapturer } from "electron"
+import { app, BrowserWindow, ipcMain, dialog, desktopCapturer, Menu } from "electron"
 import path from "path"
 import http from "http"
 import fs from "fs/promises"
@@ -143,9 +143,73 @@ const createChildWindow = () => {
   }
 }
 
+// 新增：创建应用程序菜单
+const createAppMenu = () => {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Check for Updates',
+          click: () => {
+            updateElectronApp()
+          }
+        },
+        {
+          label: 'About',
+          click: async () => {
+            const { response } = await dialog.showMessageBox({
+              type: 'info',
+              title: 'About',
+              message: 'Mo AI Application',
+              detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}`,
+              buttons: ['OK']
+            })
+          }
+        }
+      ]
+    }
+  ]
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}
+
 app.on("ready", () => {
   createWindow()
   setupIpcHandlers()
+  createAppMenu() // 新增：设置应用程序菜单
 
   // 新增：设置 IPC 监听器来创建子窗口
   ipcMain.on("open-child-window", createChildWindow)
