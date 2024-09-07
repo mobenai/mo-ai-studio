@@ -10,7 +10,7 @@
     "make:debug": "electron-forge make --arch=\"arm64,x64\" --debug",
     "package": "electron-forge package",
     "make": "cross-env $(cat .env | xargs) electron-forge make --arch=\"arm64,x64\"",
-    "publish:ele": "electron-forge publish",
+    "publish:ele": "cross-env $(cat .env | xargs) electron-forge publish --arch=\"arm64,x64\"",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "repository": {
