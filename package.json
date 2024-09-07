@@ -9,7 +9,7 @@
     "start": "electron-forge start -- --dev",
     "make:debug": "electron-forge make --arch=\"arm64,x64\" --debug",
     "package": "electron-forge package",
-    "make": "electron-forge make --arch=\"arm64,x64\"",
+    "make": "cross-env $(cat .env | xargs) electron-forge make --arch=\"arm64,x64\"",
     "publish:ele": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
@@ -50,6 +50,7 @@
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.3.4",
     "exceljs": "^4.4.0",

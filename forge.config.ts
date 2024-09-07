@@ -6,15 +6,29 @@ import { MakerRpm } from "@electron-forge/maker-rpm"
 import { VitePlugin } from "@electron-forge/plugin-vite"
 import { FusesPlugin } from "@electron-forge/plugin-fuses"
 import { FuseV1Options, FuseVersion } from "@electron/fuses"
+import dotenv from 'dotenv'
+
+// Load environment variables from .env file
+dotenv.config()
+
+// 检查必要的环境变量是否设置
+const requiredEnvVars = ['APPLE_ID', 'APPLE_ID_PASSWORD', 'APPLE_TEAM_ID'];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.warn(`Warning: Environment variable ${envVar} is not set. This may cause issues during notarization.`);
+  }
+}
 
 const config: ForgeConfig = {
   packagerConfig: {
     osxSign: {},
-    osxNotarize: {
-      appleId: "690986500@qq.com",
-      appleIdPassword: "vljh-wuyx-kdnv-rxrk",
-      teamId: "Z33MF3XAXB",
-    },
+    osxNotarize: process.env.APPLE_ID && process.env.APPLE_ID_PASSWORD && process.env.APPLE_TEAM_ID
+      ? {
+          appleId: process.env.APPLE_ID,
+          appleIdPassword: process.env.APPLE_ID_PASSWORD,
+          teamId: process.env.APPLE_TEAM_ID,
+        }
+      : undefined,
     asar: true,
     icon: "./images/icon.icns", // no file extension required
     // extraResource: [],
