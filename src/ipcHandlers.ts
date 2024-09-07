@@ -68,6 +68,19 @@ const readDirectoryRecursive = async (dirPath: string): Promise<any[]> => {
   return files
 }
 
+const checkGitInstalled = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    exec("git --version", (error) => {
+      if (error) {
+        console.error("Git is not installed:", error)
+        resolve(false)
+      } else {
+        resolve(true)
+      }
+    })
+  })
+}
+
 export const setupIpcHandlers = () => {
   ipcMain.handle("readFiles", async (_, filePaths) => {
     if (!Array.isArray(filePaths) || filePaths.length === 0) {
@@ -332,6 +345,11 @@ export const setupIpcHandlers = () => {
       return { success: false, error: "Invalid repository URL or target path" }
     }
     try {
+      const isGitInstalled = await checkGitInstalled()
+      if (!isGitInstalled) {
+        return { success: false, error: "Git is not installed on your system" }
+      }
+
       const git = simpleGit()
       await git.clone(repoUrl, targetPath, ["--progress"], (progress) => {
         const match = progress.match(/Receiving objects:\s+(\d+)%/)
@@ -342,9 +360,11 @@ export const setupIpcHandlers = () => {
       })
       return { success: true, path: targetPath }
     } catch (error) {
-      return { success: false, error: error.message }
+      console.error("Error cloning repository:", error)
+      return { success: false, error: error.message, details: JSON.stringify(error, null, 2) }
     }
   })
+
   ipcMain.handle("promptGitRepoUrl", async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     const result = await dialog.showInputBox(win, {
@@ -406,5 +426,10 @@ export const setupIpcHandlers = () => {
 
   ipcMain.handle("quit-and-install", () => {
     autoUpdater.quitAndInstall()
+  })
+
+  ipcMain.handle("checkGitInstalled", async () => {
+    const isGitInstalled = await checkGitInstalled()
+    return { success: true, isInstalled: isGitInstalled }
   })
 }
