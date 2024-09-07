@@ -1,11 +1,10 @@
 import { ipcMain, dialog, desktopCapturer, app, BrowserWindow } from "electron"
-
 import fs from "fs/promises"
 import path from "path"
 import { exec } from "child_process"
 import { port, isDev } from "./main"
 import simpleGit from "simple-git"
-import { updateElectronApp } from "update-electron-app"
+import { autoUpdater } from "electron-updater"
 
 const shouldIgnore = (name: string): boolean => {
   const ignoredDirs = ["node_modules", ".git", "build", "dist"]
@@ -366,9 +365,46 @@ export const setupIpcHandlers = () => {
     }
   })
 
-  // 新增：处理检查更新的请求
-  ipcMain.handle("check-for-updates", () => {
-    updateElectronApp()
-    return { success: true, message: "Update check initiated" }
+  // 修改：处理检查更新的请求
+  ipcMain.handle("check-for-updates", async () => {
+    if (isDev) {
+      return { success: true, updateAvailable: false, message: "Updates are not checked in development mode" }
+    }
+    try {
+      const result = await autoUpdater.checkForUpdates()
+      if (result && result.updateInfo) {
+        return { 
+          success: true, 
+          updateAvailable: true, 
+          version: result.updateInfo.version,
+          releaseNotes: result.updateInfo.releaseNotes,
+          message: `A new version (${result.updateInfo.version}) is available.`
+        }
+      } else {
+        return { 
+          success: true, 
+          updateAvailable: false,
+          message: "You are using the latest version."
+        }
+      }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle("download-update", async () => {
+    if (isDev) {
+      return { success: false, message: "Updates cannot be downloaded in development mode" }
+    }
+    try {
+      await autoUpdater.downloadUpdate()
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle("quit-and-install", () => {
+    autoUpdater.quitAndInstall()
   })
 }

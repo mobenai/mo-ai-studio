@@ -36,6 +36,8 @@ const windowAPI = {
 
 const updateAPI = {
   checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+  downloadUpdate: () => ipcRenderer.invoke("download-update"),
+  quitAndInstall: () => ipcRenderer.invoke("quit-and-install"),
 }
 
 contextBridge.exposeInMainWorld("electronAPI", {

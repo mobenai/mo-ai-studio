@@ -9,9 +9,7 @@ import httpServer from "./httpServer"
 import { initializeWebSocketServer } from "./wsServer"
 import { exec } from "child_process"
 import { setupIpcHandlers } from "./ipcHandlers"
-import { updateElectronApp } from "update-electron-app"
-
-updateElectronApp() // additional configuration options available
+import { autoUpdater, UpdateInfo } from "electron-updater"
 
 if (require("electron-squirrel-startup")) {
   app.quit()
@@ -182,8 +180,31 @@ const createAppMenu = () => {
       submenu: [
         {
           label: 'Check for Updates',
-          click: () => {
-            updateElectronApp()
+          click: async () => {
+            try {
+              const result = await autoUpdater.checkForUpdates()
+              if (result && result.updateInfo) {
+                dialog.showMessageBox({
+                  type: 'info',
+                  title: 'Update Available',
+                  message: `A new version (${result.updateInfo.version}) is available. Do you want to download it now?`,
+                  buttons: ['Yes', 'No']
+                }).then((response) => {
+                  if (response.response === 0) {
+                    autoUpdater.downloadUpdate()
+                  }
+                })
+              } else {
+                dialog.showMessageBox({
+                  type: 'info',
+                  title: 'No Updates',
+                  message: 'You are using the latest version.',
+                  buttons: ['OK']
+                })
+              }
+            } catch (error) {
+              dialog.showErrorBox('Update Error', `An error occurred while checking for updates: ${error.message}`)
+            }
           }
         },
         {
@@ -209,7 +230,39 @@ const createAppMenu = () => {
 app.on("ready", () => {
   createWindow()
   setupIpcHandlers()
-  createAppMenu() // 新增：设置应用程序菜单
+  createAppMenu()
+
+  // 初始化自动更新
+  if (!isDev) {
+    autoUpdater.checkForUpdatesAndNotify()
+  }
+
+  // 设置自动更新事件监听器
+  autoUpdater.on('update-available', (info: UpdateInfo) => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Available',
+      message: `A new version (${info.version}) is available. Do you want to download it now?`,
+      buttons: ['Yes', 'No']
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.downloadUpdate()
+      }
+    })
+  })
+
+  autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Ready',
+      message: `Version ${info.version} has been downloaded. Do you want to install it now?`,
+      buttons: ['Yes', 'No']
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall()
+      }
+    })
+  })
 
   // 新增：设置 IPC 监听器来创建子窗口
   ipcMain.on("open-child-window", createChildWindow)
