@@ -26,8 +26,6 @@
  * ```
  */
 
-import "./index.css"
-
 const loadingElement = document.getElementById("loading")
 const contentElement = document.getElementById("content")
 
