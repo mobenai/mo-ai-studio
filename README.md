@@ -15,14 +15,7 @@ Mo AI Studio 是一个企业级 AI 智能体运行平台，能够运行各种定
 
 ## 演示
 
-### Mo 修改网站
-![Mo 修改网站](https://modelbase-dev-open.oss-cn-shanghai.aliyuncs.com/MO%20%E4%BF%AE%E6%94%B9%E4%BA%86%E5%AE%98%E7%BD%91.mp4)
-
-### Mo 重构 700 行大文件
-![Mo 重构 700 行大文件](https://modelbase-dev-open.oss-cn-shanghai.aliyuncs.com/Mo%20%E9%87%8D%E6%9E%84%20700%E8%A1%8C%E4%BB%A3%E7%A0%81.mp4)
-
-### Mo 生成 i18n 多语言翻译
-![Mo 生成 i18n 多语言翻译](https://modelbase-dev-open.oss-cn-shanghai.aliyuncs.com/Mo%20%E7%BF%BB%E8%AF%91%20i18n.mp4)
+请访问官网来查看我们提供的演示视频 [Mobenai](https://www.mobenai.com.cn/)。
 
 ## 安装
 
