@@ -25,11 +25,14 @@ const getDirectoryStructure = async (dirPath: string, processedPaths = new Set<s
     processedPaths.add(fullPath)
 
     if (entry.isDirectory()) {
-      structure.push({
-        name: entry.name,
-        type: "directory",
-        children: await getDirectoryStructure(fullPath, processedPaths),
-      })
+      const children = await getDirectoryStructure(fullPath, processedPaths)
+      if (children.length > 0) {
+        structure.push({
+          name: entry.name,
+          type: "directory",
+          children: children,
+        })
+      }
     } else {
       structure.push({
         name: entry.name,
@@ -47,13 +50,18 @@ const readDirectoryRecursive = async (dirPath: string): Promise<any[]> => {
   const files = await Promise.all(
     entries.map(async (entry) => {
       const fullPath = path.join(dirPath, entry.name)
+      if (shouldIgnore(entry.name)) return null
       if (entry.isDirectory()) {
-        return {
-          path: fullPath,
-          name: entry.name,
-          type: "directory",
-          children: await readDirectoryRecursive(fullPath),
+        const children = await readDirectoryRecursive(fullPath)
+        if (children.length > 0) {
+          return {
+            path: fullPath,
+            name: entry.name,
+            type: "directory",
+            children: children,
+          }
         }
+        return null
       } else {
         const content = await fs.readFile(fullPath, "utf-8")
         return {
@@ -65,7 +73,7 @@ const readDirectoryRecursive = async (dirPath: string): Promise<any[]> => {
       }
     })
   )
-  return files
+  return files.filter(Boolean)
 }
 
 const checkGitInstalled = (): Promise<boolean> => {
@@ -147,11 +155,13 @@ export const setupIpcHandlers = () => {
     }
     try {
       const files = await fs.readdir(dirPath, { withFileTypes: true })
-      const result = files.map((file) => ({
-        name: file.name,
-        isDirectory: file.isDirectory(),
-        path: path.join(dirPath, file.name),
-      }))
+      const result = files
+        .filter((file) => !shouldIgnore(file.name))
+        .map((file) => ({
+          name: file.name,
+          isDirectory: file.isDirectory(),
+          path: path.join(dirPath, file.name),
+        }))
       return { success: true, files: result }
     } catch (error) {
       return { success: false, error: error.message }
