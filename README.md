@@ -22,20 +22,16 @@ Mo AI Studio 是一个企业级 AI 智能体运行平台，能够运行各种定
 ```bash
 git clone https://github.com/kinop112365362/mo-ai-studio.git
 cd mo-ai-studio
-npm install
+yarn
 ```
 
 ## 使用方法
 
 ```bash
-npm start
+yarn start
 ```
 
-访问 `http://localhost:3000` 来查看应用。
-
-## 贡献
-
-我们欢迎所有形式的贡献，无论是新功能、文档改进还是报告 bug。请查看我们的 [贡献指南](CONTRIBUTING.md) 了解更多信息。
+## Mo AI Studio 还包含一个 WebUI，关于这部分我们将在整理后开源
 
 ## 许可证
 
