@@ -39,4 +39,4 @@ yarn start
 
 ## 联系我们
 
-如果您有任何问题或建议，请随时通过 [issues](https://github.com/kinop112365362/mo-ai-studio/issues) 与我们联系。
+如果您有任何问题或建议，请随时通过 [issues](https://github.com/kinop112365362/mo-ai-stuidio/issues) 与我们联系。
