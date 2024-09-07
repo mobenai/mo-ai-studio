@@ -10,6 +10,9 @@ import { initializeWebSocketServer } from "./wsServer"
 import { exec } from "child_process"
 import { setupIpcHandlers } from "./ipcHandlers"
 import { autoUpdater, UpdateInfo } from "electron-updater"
+import { updateElectronApp } from "update-electron-app"
+
+updateElectronApp()
 
 if (require("electron-squirrel-startup")) {
   app.quit()
@@ -145,82 +148,84 @@ const createChildWindow = () => {
 const createAppMenu = () => {
   const template = [
     {
-      label: 'File',
-      submenu: [
-        { role: 'quit' }
-      ]
+      label: "File",
+      submenu: [{ role: "quit" }],
     },
     {
-      label: 'Edit',
+      label: "Edit",
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' }
-      ]
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+      ],
     },
     {
-      label: 'View',
+      label: "View",
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
+        { role: "reload" },
+        { role: "forceReload" },
+        { role: "toggleDevTools" },
+        { type: "separator" },
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
+        { type: "separator" },
+        { role: "togglefullscreen" },
+      ],
     },
     {
-      label: 'Help',
+      label: "Help",
       submenu: [
         {
-          label: 'Check for Updates',
+          label: "Check for Updates",
           click: async () => {
             try {
               const result = await autoUpdater.checkForUpdates()
               if (result && result.updateInfo) {
-                dialog.showMessageBox({
-                  type: 'info',
-                  title: 'Update Available',
-                  message: `A new version (${result.updateInfo.version}) is available. Do you want to download it now?`,
-                  buttons: ['Yes', 'No']
-                }).then((response) => {
-                  if (response.response === 0) {
-                    autoUpdater.downloadUpdate()
-                  }
-                })
+                dialog
+                  .showMessageBox({
+                    type: "info",
+                    title: "Update Available",
+                    message: `A new version (${result.updateInfo.version}) is available. Do you want to download it now?`,
+                    buttons: ["Yes", "No"],
+                  })
+                  .then((response) => {
+                    if (response.response === 0) {
+                      autoUpdater.downloadUpdate()
+                    }
+                  })
               } else {
                 dialog.showMessageBox({
-                  type: 'info',
-                  title: 'No Updates',
-                  message: 'You are using the latest version.',
-                  buttons: ['OK']
+                  type: "info",
+                  title: "No Updates",
+                  message: "You are using the latest version.",
+                  buttons: ["OK"],
                 })
               }
             } catch (error) {
-              dialog.showErrorBox('Update Error', `An error occurred while checking for updates: ${error.message}`)
+              dialog.showErrorBox("Update Error", `An error occurred while checking for updates: ${error.message}`)
             }
-          }
+          },
         },
         {
-          label: 'About',
+          label: "About",
           click: async () => {
             const { response } = await dialog.showMessageBox({
-              type: 'info',
-              title: 'About',
-              message: 'Mo AI Application',
-              detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}`,
-              buttons: ['OK']
+              type: "info",
+              title: "About",
+              message: "Mo AI Application",
+              detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${
+                process.versions.chrome
+              }\nNode.js: ${process.versions.node}`,
+              buttons: ["OK"],
             })
-          }
-        }
-      ]
-    }
+          },
+        },
+      ],
+    },
   ]
 
   const menu = Menu.buildFromTemplate(template)
@@ -238,30 +243,34 @@ app.on("ready", () => {
   }
 
   // 设置自动更新事件监听器
-  autoUpdater.on('update-available', (info: UpdateInfo) => {
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'Update Available',
-      message: `A new version (${info.version}) is available. Do you want to download it now?`,
-      buttons: ['Yes', 'No']
-    }).then((result) => {
-      if (result.response === 0) {
-        autoUpdater.downloadUpdate()
-      }
-    })
+  autoUpdater.on("update-available", (info: UpdateInfo) => {
+    dialog
+      .showMessageBox({
+        type: "info",
+        title: "Update Available",
+        message: `A new version (${info.version}) is available. Do you want to download it now?`,
+        buttons: ["Yes", "No"],
+      })
+      .then((result) => {
+        if (result.response === 0) {
+          autoUpdater.downloadUpdate()
+        }
+      })
   })
 
-  autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'Update Ready',
-      message: `Version ${info.version} has been downloaded. Do you want to install it now?`,
-      buttons: ['Yes', 'No']
-    }).then((result) => {
-      if (result.response === 0) {
-        autoUpdater.quitAndInstall()
-      }
-    })
+  autoUpdater.on("update-downloaded", (info: UpdateInfo) => {
+    dialog
+      .showMessageBox({
+        type: "info",
+        title: "Update Ready",
+        message: `Version ${info.version} has been downloaded. Do you want to install it now?`,
+        buttons: ["Yes", "No"],
+      })
+      .then((result) => {
+        if (result.response === 0) {
+          autoUpdater.quitAndInstall()
+        }
+      })
   })
 
   // 新增：设置 IPC 监听器来创建子窗口

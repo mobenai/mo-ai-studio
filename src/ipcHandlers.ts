@@ -224,7 +224,10 @@ export const setupIpcHandlers = () => {
 
   ipcMain.handle("getSources", async () => {
     try {
-      const sources = await desktopCapturer.getSources({ types: ["screen", "window"] })
+      const sources = await desktopCapturer.getSources({ 
+        types: ["screen", "window"],
+        thumbnailSize: { width: 320, height: 320 }  // 增加缩略图大小
+      })
       return sources.map((source) => ({
         id: source.id,
         name: source.name,
