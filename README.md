@@ -31,7 +31,14 @@ yarn
 yarn start
 ```
 
-## Mo AI Studio 还包含一个 WebUI，关于这部分我们将在整理后开源
+## Mo AI Studio UI
+
+Web UI 代码见仓库地址 https://github.com/kinop112365362/mo-ai-studio-ui
+
+## 贡献
+
+需要同时下载 [Mo AI Studio](https://github.com/kinop112365362/mo-ai-studio) 和 [Mo AI Studio UI](https://github.com/kinop112365362/mo-ai-studio-ui) 两个仓库。
+并同时启动 Mo AI Studio 和 Mo AI Studio UI。即可进行调试，请自备 API Key
 
 ## 许可证
 
