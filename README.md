@@ -17,20 +17,6 @@ Mo AI Studio 是一个企业级 AI 智能体运行平台，能够运行各种定
 
 请访问官网来查看我们提供的演示视频 [Mobenai](https://www.mobenai.com.cn/)。
 
-## 安装
-
-```bash
-git clone https://github.com/kinop112365362/mo-ai-studio.git
-cd mo-ai-studio
-yarn
-```
-
-## 使用方法
-
-```bash
-yarn start
-```
-
 ## Mo AI Studio UI
 
 Web UI 代码见仓库地址 https://github.com/kinop112365362/mo-ai-studio-ui
