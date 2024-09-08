@@ -234,7 +234,7 @@ const createAppMenu = () => {
 
 app.on("ready", () => {
   createWindow()
-  setupIpcHandlers()
+  setupIpcHandlers(port, isDev)
   createAppMenu()
 
   // 初始化自动更新
