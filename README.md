@@ -61,7 +61,7 @@ Steps:
 
 1. Clone both repositories to your local machine.
 2. Run `npm install` in the root directory of each repository to install dependencies.
-3. Run `npm start` in the Mo AI Studio directory to start the backend service.
+3. Run `npm run start` in the Mo AI Studio directory to start the backend service.
 4. Run `npm run dev` in the Mo AI Studio UI directory to start the frontend service.
 
 Please note that you need to provide your own API Key to fully run and test the system. If you encounter any problems during setup, please check the detailed instructions in each repository or contact our support team.
@@ -82,7 +82,7 @@ This project is licensed under the MIT License. For details, please see the [LIC
 
 If you have any questions or suggestions, please feel free to contact us through the following channels:
 - [GitHub Issues](https://github.com/kinop112365362/mo-ai-stuidio/issues)
-- Email: support@mobenai.com
+- Email: info@mobenai.com.cn
 - Official website: [www.mobenai.com.cn](https://www.mobenai.com.cn)
 
 We look forward to hearing from you and working together to drive the development of Mo AI Studio!
@@ -170,7 +170,7 @@ Web UI 代码见仓库地址 https://github.com/kinop112365362/mo-ai-studio-ui
 
 如果您有任何问题或建议，请随时通过以下方式与我们联系：
 - [GitHub Issues](https://github.com/kinop112365362/mo-ai-stuidio/issues)
-- 电子邮件：support@mobenai.com
+- 电子邮件：info@mobenai.com.cn
 - 官方网站：[www.mobenai.com.cn](https://www.mobenai.com.cn)
 
 我们期待听到您的声音，一起推动 Mo AI Studio 的发展！
