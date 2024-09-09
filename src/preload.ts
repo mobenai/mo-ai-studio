@@ -41,10 +41,15 @@ const updateAPI = {
   quitAndInstall: () => ipcRenderer.invoke("quit-and-install"),
 }
 
+const bashAPI = {
+  executeBash: (script: string) => ipcRenderer.invoke("executeBash", script),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
   screenShare: screenShareAPI,
   window: windowAPI,
   update: updateAPI,
+  bash: bashAPI,
 })

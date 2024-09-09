@@ -1,13 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog, desktopCapturer, Menu } from "electron"
 import path from "path"
 import http from "http"
-import fs from "fs/promises"
-import WebSocket from "ws"
 import net from "net"
-import express from "express"
-import httpServer from "./httpServer"
-import { initializeWebSocketServer } from "./wsServer"
-import { exec } from "child_process"
 import { setupIpcHandlers } from "./ipcHandlers"
 import { autoUpdater, UpdateInfo } from "electron-updater"
 import { updateElectronApp } from "update-electron-app"
@@ -34,37 +28,6 @@ const findAvailablePort = async (startPort: number): Promise<number> => {
     })
     server.on("error", () => {
       findAvailablePort(startPort + 1).then(resolve, reject)
-    })
-  })
-}
-
-const initializeServer = async (port: number) => {
-  const server = http.createServer(httpServer)
-  const wss = new WebSocket.Server({ server })
-  initializeWebSocketServer(wss, { port })
-
-  return new Promise<void>((resolve) => {
-    server.listen(port, () => {
-      console.log(`Mo-2 Agent Server running at http://localhost:${port}`)
-      resolve()
-    })
-  })
-}
-
-const createStaticServer = (port: number) => {
-  const app = express()
-  const staticPath = path.join(__dirname, "../../../", "dist")
-  app.use(express.static(staticPath))
-
-  // Handle 404 errors by redirecting to index.html
-  app.use((req, res, next) => {
-    res.sendFile(path.join(staticPath, "index.html"))
-  })
-
-  return new Promise<void>((resolve) => {
-    staticServer = app.listen(port, () => {
-      console.log(`Static server running at http://localhost:${port}`)
-      resolve()
     })
   })
 }
@@ -234,7 +197,7 @@ const createAppMenu = () => {
 
 app.on("ready", () => {
   createWindow()
-  setupIpcHandlers(port, isDev)
+  setupIpcHandlers()
   createAppMenu()
 
   // 初始化自动更新
