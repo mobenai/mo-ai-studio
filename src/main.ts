@@ -112,7 +112,7 @@ const createWindow = async () => {
   if (isDev) {
     mainWindow.loadURL(`http://localhost:8080/mo`)
   } else {
-    mainWindow.loadURL(`http://www.mobenai.com.cn/mo`)
+    mainWindow.loadURL(`https://www.moben.cloud/mo`)
   }
 
   setupWindowBehavior(mainWindow)
