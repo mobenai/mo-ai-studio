@@ -15,7 +15,7 @@
     "make:all": "npm run make:darwin && npm run make:win32",
     "publish:darwin": "cross-env $(cat .env | xargs) electron-forge publish --arch=\"arm64,x64\" --platform=darwin",
     "publish:win32": "cross-env $(cat .env | xargs) electron-forge publish --arch=\"arm64,x64\" --platform=win32",
-    "publish:all": "npm run publish:darwin && npm run publish:win32",
+    "publish:all": "rm -rf ./out && npm run publish:darwin && npm run publish:win32",
     "lint": "eslint --ext .ts,.tsx .",
     "git": "git push && git push --tags"
   },
