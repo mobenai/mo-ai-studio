@@ -43,11 +43,11 @@ const config: ForgeConfig = {
   ],
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    // new MakerSquirrel({}),
     new MakerZIP({}, ["darwin", "win32"]),
-    new MakerRpm({}),
+    // new MakerRpm({}),
     // new MakerDMG({}),
-    new MakerDeb({}),
+    // new MakerDeb({}),
   ],
   plugins: [
     new VitePlugin({
