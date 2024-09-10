@@ -2,7 +2,7 @@
   "name": "mo-ai-studio",
   "private": true,
   "productName": "mo-ai-studio",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "mo ai studio local ai agent for everyone",
   "main": ".vite/build/main.js",
   "scripts": {
