@@ -99,7 +99,7 @@ const createChildWindow = () => {
   if (isDev) {
     childWindow.loadURL(`http://localhost:8080/mo`)
   } else {
-    childWindow.loadURL(`http://www.mobenai.com.cn/mo`)
+    childWindow.loadURL(`http://www.moben.cloud/mo`)
   }
 
   if (isDev || isDebugger) {
