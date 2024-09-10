@@ -3,22 +3,18 @@ import { MakerSquirrel } from "@electron-forge/maker-squirrel"
 import { MakerZIP } from "@electron-forge/maker-zip"
 import { MakerDeb } from "@electron-forge/maker-deb"
 import { MakerRpm } from "@electron-forge/maker-rpm"
+import { MakerDMG } from "@electron-forge/maker-dmg"
 import { VitePlugin } from "@electron-forge/plugin-vite"
 import { FusesPlugin } from "@electron-forge/plugin-fuses"
 import { FuseV1Options, FuseVersion } from "@electron/fuses"
 import dotenv from "dotenv"
 
+dotenv.config()
+
 // Load environment variables from .env file
 dotenv.config()
 
 // 检查必要的环境变量是否设置
-const requiredEnvVars = ["APPLE_ID", "APPLE_ID_PASSWORD", "APPLE_TEAM_ID"]
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    console.warn(`Warning: Environment variable ${envVar} is not set. This may cause issues during notarization.`)
-  }
-}
-
 const config: ForgeConfig = {
   packagerConfig: {
     osxSign: {},
@@ -31,7 +27,7 @@ const config: ForgeConfig = {
           }
         : undefined,
     asar: true,
-    icon: "./images/icon.icns", // no file extension required
+    icon: "./images/icon.icns",
   },
   publishers: [
     {
@@ -46,8 +42,13 @@ const config: ForgeConfig = {
     },
   ],
   rebuildConfig: {},
-
-  makers: [new MakerSquirrel({}), new MakerZIP({}, ["darwin"]), new MakerRpm({}), new MakerDeb({})],
+  makers: [
+    new MakerSquirrel({}),
+    new MakerZIP({}, ["darwin", "win32"]),
+    new MakerRpm({}),
+    new MakerDMG({}),
+    new MakerDeb({}),
+  ],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
