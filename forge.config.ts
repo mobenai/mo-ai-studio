@@ -46,7 +46,7 @@ const config: ForgeConfig = {
     new MakerSquirrel({}),
     new MakerZIP({}, ["darwin", "win32"]),
     new MakerRpm({}),
-    new MakerDMG({}),
+    // new MakerDMG({}),
     new MakerDeb({}),
   ],
   plugins: [
