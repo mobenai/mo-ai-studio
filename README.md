@@ -34,7 +34,7 @@ Seeing Mo AI Studio transform from concept to reality, I feel immensely proud. T
 
 Please visit our official website [Mobenai](https://www.moben.cloud/) to view the demo video.
 
-In addition, you can visit our [documentation site](https:/www.modelbase.com.cn) to learn more detailed information and usage guidelines about Mo AI Studio.
+In addition, you can visit our [documentation site](https://modelbase.com.cn) to learn more detailed information and usage guidelines about Mo AI Studio.
 
 ## Mo AI Studio UI
 
