@@ -54,7 +54,7 @@ The Web UI code can be found at https://github.com/kinop112365362/mo-ai-studio-u
 
 To participate in the development of Mo AI Studio, you need to download and set up two repositories:
 
-1. [Mo AI Studio](https://github.com/kinop112365362/mo-ai-studio)
+1. [Mo AI Studio](https://github.com/mobenai/mo-ai-studio)
 2. [Mo AI Studio UI](https://github.com/kinop112365362/mo-ai-studio-ui)
 
 Steps:

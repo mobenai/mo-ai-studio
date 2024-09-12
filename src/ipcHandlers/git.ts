@@ -13,7 +13,7 @@ const checkGitInstalled = (): Promise<boolean> => {
       }
     })
   })
-}
+
 
 export const setupGitHandlers = () => {
   ipcMain.handle("undoGitCommit", async () => {
