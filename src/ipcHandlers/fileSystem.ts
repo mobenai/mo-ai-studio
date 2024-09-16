@@ -214,7 +214,17 @@ export const setupFileSystemHandlers = () => {
   ipcMain.handle("readDirectoryRecursive", async (_, dirPath) => {
     try {
       const files = await readDirectoryRecursive(dirPath)
-      return { success: true, files }
+      // 将文件内容转换为可序列化的格式
+      const serializableFiles = files.map(file => {
+        if (file.type === 'file') {
+          return {
+            ...file,
+            content: file.content ? file.content.toString('base64') : null
+          }
+        }
+        return file
+      })
+      return { success: true, files: serializableFiles }
     } catch (error) {
       console.error("Error reading directory recursively:", error)
       return { success: false, error: error.message }

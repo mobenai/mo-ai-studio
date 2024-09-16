@@ -10,14 +10,29 @@ const fileAPI = {
   selectFiles: () => ipcRenderer.invoke("selectFiles"),
   getDirectoryStructure: (dirPath: string) => ipcRenderer.invoke("getDirectoryStructure", dirPath),
   getAbsolutePath: (filePath: string) => ipcRenderer.invoke("getAbsolutePath", filePath),
-  readDirectoryRecursive: (dirPath: string) => ipcRenderer.invoke("readDirectoryRecursive", dirPath),
+  readDirectoryRecursive: async (dirPath: string) => {
+    const result = await ipcRenderer.invoke("readDirectoryRecursive", dirPath)
+    if (result.success) {
+      // 将Base64编码的文件内容转换回原始格式
+      result.files = result.files.map(file => {
+        if (file.type === 'file' && file.content) {
+          return {
+            ...file,
+            content: atob(file.content)
+          }
+        }
+        return file
+      })
+    }
+    return result
+  },
   executePandoc: (inputFile: string, outputFile: string, fromFormat: string, toFormat: string) =>
     ipcRenderer.invoke("executePandoc", inputFile, outputFile, fromFormat, toFormat),
   undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
   getFileStats: (filePath: string) => ipcRenderer.invoke("getFileStats", filePath),
   createDirectory: () => ipcRenderer.invoke("createDirectory"),
   cloneGitRepository: (repoUrl: string, targetPath: string, progressCallback: (progress: number) => void) =>
-    ipcRenderer.invoke("cloneGitRepository", repoUrl, targetPath, progressCallback),
+    ipcRenderer.invoke("cloneGitRepository", repoUrl, targetPath),
   promptGitRepoUrl: () => ipcRenderer.invoke("promptGitRepoUrl"),
   checkGitInstalled: () => ipcRenderer.invoke("checkGitInstalled"),
 }
