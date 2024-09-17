@@ -28,13 +28,8 @@ const fileAPI = {
   },
   executePandoc: (inputFile: string, outputFile: string, fromFormat: string, toFormat: string) =>
     ipcRenderer.invoke("executePandoc", inputFile, outputFile, fromFormat, toFormat),
-  undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
   getFileStats: (filePath: string) => ipcRenderer.invoke("getFileStats", filePath),
   createDirectory: () => ipcRenderer.invoke("createDirectory"),
-  cloneGitRepository: (repoUrl: string, targetPath: string, progressCallback: (progress: number) => void) =>
-    ipcRenderer.invoke("cloneGitRepository", repoUrl, targetPath),
-  promptGitRepoUrl: () => ipcRenderer.invoke("promptGitRepoUrl"),
-  checkGitInstalled: () => ipcRenderer.invoke("checkGitInstalled"),
 }
 
 const env = {
@@ -60,6 +55,20 @@ const bashAPI = {
   executeBash: (script: string) => ipcRenderer.invoke("executeBash", script),
 }
 
+const linkAPI = {
+  openExternalLink: (url: string) => ipcRenderer.invoke("open-external-link", url),
+}
+
+const gitAPI = {
+  undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
+  cloneGitRepository: (repoUrl: string, targetPath: string) =>
+    ipcRenderer.invoke("cloneGitRepository", repoUrl, targetPath),
+  promptGitRepoUrl: () => ipcRenderer.invoke("promptGitRepoUrl"),
+  checkGitInstalled: () => ipcRenderer.invoke("checkGitInstalled"),
+  setGitConfig: (username: string, email: string) => ipcRenderer.invoke("setGitConfig", username, email),
+  generateSSHKey: () => ipcRenderer.invoke("generateSSHKey"),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
@@ -67,4 +76,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   window: windowAPI,
   update: updateAPI,
   bash: bashAPI,
+  link: linkAPI,
+  git: gitAPI,
 })

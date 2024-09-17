@@ -1,10 +1,12 @@
-import { app, BrowserWindow, ipcMain, dialog, desktopCapturer, Menu } from "electron"
+import { app, BrowserWindow, ipcMain, dialog, desktopCapturer, Menu, shell } from "electron"
 import path from "path"
 import http from "http"
 import net from "net"
 import { setupIpcHandlers } from "./ipcHandlers"
 import { autoUpdater, UpdateInfo } from "electron-updater"
 import { updateElectronApp } from "update-electron-app"
+import log from "electron-log"
+import { crashReporter } from "electron"
 
 updateElectronApp()
 
@@ -16,6 +18,18 @@ const isDev = process.argv.includes("--dev")
 const isDebugger = process.argv.includes("--debugger")
 let port = 3000
 let staticServer: http.Server | null = null
+
+// 配置日志
+log.transports.file.level = "info"
+log.transports.console.level = "debug"
+
+// 设置崩溃报告
+crashReporter.start({
+  productName: "Mo AI Studio",
+  companyName: "Mo Ben Technology",
+  submitURL: "https://your-crash-report-server.com/submit", // 替换为你的崩溃报告服务器地址
+  uploadToServer: true
+})
 
 const findAvailablePort = async (startPort: number): Promise<number> => {
   return new Promise((resolve, reject) => {
@@ -67,6 +81,15 @@ const setupWindowBehavior = (mainWindow: BrowserWindow) => {
       }
     })
   }
+
+  // 处理新窗口的创建
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http:') || url.startsWith('https:')) {
+      shell.openExternal(url)
+      return { action: 'deny' }
+    }
+    return { action: 'allow' }
+  })
 }
 
 const createWindow = async () => {
@@ -238,6 +261,15 @@ app.on("ready", () => {
 
   // 新增：设置 IPC 监听器来创建子窗口
   ipcMain.on("open-child-window", createChildWindow)
+
+  // 新增：处理链接点击
+  ipcMain.handle("open-external-link", (event, url) => {
+    if (url.startsWith('http:') || url.startsWith('https:')) {
+      shell.openExternal(url)
+      return { success: true }
+    }
+    return { success: false, error: 'Invalid URL' }
+  })
 })
 
 app.on("window-all-closed", () => {
@@ -256,6 +288,16 @@ app.on("quit", () => {
   if (staticServer) {
     staticServer.close()
   }
+})
+
+// 全局错误处理
+process.on('uncaughtException', (error) => {
+  log.error('Uncaught Exception:', error)
+  dialog.showErrorBox('An error occurred', `An unexpected error occurred: ${error.message}`)
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  log.error('Unhandled Rejection at:', promise, 'reason:', reason)
 })
 
 // Export necessary functions and variables for IPC handlers

@@ -1,9 +1,7 @@
-import { ipcMain, BrowserWindow, dialog } from "electron"
+import { ipcMain, dialog } from "electron"
 import { exec } from "child_process"
-import log from "electron-log/main"
-
-// Optional, initialize the logger for any renderer process
-log.initialize()
+import fs from "fs/promises"
+import path from "path"
 
 const checkGitInstalled = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -20,9 +18,9 @@ const checkGitInstalled = (): Promise<boolean> => {
 
 const logGitOperation = (message: string, error?: any) => {
   if (error) {
-    log.error(`Git Operation: ${message}`, error)
+    console.error(`Git Operation: ${message}`, error)
   } else {
-    log.info(`Git Operation: ${message}`)
+    console.info(`Git Operation: ${message}`)
   }
 }
 
@@ -64,7 +62,7 @@ export const setupGitHandlers = () => {
         const childProcess = exec(gitCommand)
 
         childProcess.stdout.on("data", (data) => {
-          log.info(`Git clone stdout: ${data}`)
+          console.log(`Git clone stdout: ${data}`)
           // Parse progress from stdout if possible
           const match = data.match(/Receiving objects:\s+(\d+)%/)
           if (match) {
@@ -74,7 +72,7 @@ export const setupGitHandlers = () => {
         })
 
         childProcess.stderr.on("data", (data) => {
-          log.error(`Git clone stderr: ${data}`)
+          console.error(`Git clone stderr: ${data}`)
         })
 
         childProcess.on("close", (code) => {
@@ -110,7 +108,7 @@ export const setupGitHandlers = () => {
 
     if (result.response === 0 && result.inputValue) {
       logGitOperation(`Repository URL provided: ${result.inputValue}`)
-      return{ success: true, url: result.inputValue }
+      return { success: true, url: result.inputValue }
     } else {
       logGitOperation("User cancelled repository URL input")
       return { success: false, url: null }
@@ -121,5 +119,61 @@ export const setupGitHandlers = () => {
     const isGitInstalled = await checkGitInstalled()
     logGitOperation(`Git installation check: ${isGitInstalled ? "Installed" : "Not installed"}`)
     return { success: true, isInstalled: isGitInstalled }
+  })
+
+  ipcMain.handle("setGitConfig", async (_, username, email) => {
+    if (!username || !email) {
+      return { success: false, message: "Username and email are required" }
+    }
+
+    try {
+      await new Promise((resolve, reject) => {
+        exec(`git config --global user.name "${username}"`, (error) => {
+          if (error) reject(error)
+          else resolve(null)
+        })
+      })
+
+      await new Promise((resolve, reject) => {
+        exec(`git config --global user.email "${email}"`, (error) => {
+          if (error) reject(error)
+          else resolve(null)
+        })
+      })
+
+      logGitOperation(`Git config set successfully for ${username} (${email})`)
+      return { success: true, message: "Git configuration set successfully" }
+    } catch (error) {
+      logGitOperation("Failed to set Git config", error)
+      return { success: false, message: "Failed to set Git configuration" }
+    }
+  })
+
+  ipcMain.handle("generateSSHKey", async () => {
+    const homeDir = process.env.HOME || process.env.USERPROFILE
+    const sshDir = path.join(homeDir, ".ssh")
+    const keyPath = path.join(sshDir, "id_rsa")
+
+    try {
+      // Ensure .ssh directory exists
+      await fs.mkdir(sshDir, { recursive: true })
+
+      // Generate SSH key
+      await new Promise((resolve, reject) => {
+        exec(`ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f "${keyPath}" -N ""`, (error) => {
+          if (error) reject(error)
+          else resolve(null)
+        })
+      })
+
+      // Read public key
+      const publicKey = await fs.readFile(`${keyPath}.pub`, "utf-8")
+
+      logGitOperation("SSH key generated successfully")
+      return { success: true, publicKey }
+    } catch (error) {
+      logGitOperation("Failed to generate SSH key", error)
+      return { success: false, message: "Failed to generate SSH key" }
+    }
   })
 }
