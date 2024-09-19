@@ -11,12 +11,12 @@ export const setupBashHandlers = () => {
     return new Promise((resolve) => {
       exec(script, { shell: '/bin/bash' }, (error, stdout, stderr) => {
         if (error) {
-          log.error(`Error executing bash script: ${error.message}`)
-          log.error(`Stderr: ${stderr}`)
+          console.log(`Error executing bash script: ${error.message}`)
+          console.log(`Stderr: ${stderr}`)
           resolve({ success: false, error: error.message, stderr })
         } else {
-          log.info(`Bash script executed successfully`)
-          log.info(`Stdout: ${stdout}`)
+          console.log(`Bash script executed successfully`)
+          console.log(`Stdout: ${stdout}`)
           resolve({ success: true, stdout, stderr })
         }
       })
