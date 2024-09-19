@@ -1,5 +1,6 @@
 import { ipcMain } from "electron"
 import { exec, spawn } from "child_process"
+import { log } from "electron-log"
 
 // 新增：存储运行中的bash进程
 const runningProcesses = new Map()
@@ -8,10 +9,14 @@ export const setupBashHandlers = () => {
   ipcMain.handle("executeBash", async (_, script: string) => {
     console.log("Executing bash script:", script)
     return new Promise((resolve) => {
-      exec(script, (error, stdout, stderr) => {
+      exec(script, { shell: '/bin/bash' }, (error, stdout, stderr) => {
         if (error) {
+          log.error(`Error executing bash script: ${error.message}`)
+          log.error(`Stderr: ${stderr}`)
           resolve({ success: false, error: error.message, stderr })
         } else {
+          log.info(`Bash script executed successfully`)
+          log.info(`Stdout: ${stdout}`)
           resolve({ success: true, stdout, stderr })
         }
       })
