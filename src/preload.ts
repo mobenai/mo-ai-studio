@@ -75,6 +75,12 @@ const linkAPI = {
 }
 
 const gitAPI = {
+  initGit: (repoPath: string) => ipcRenderer.invoke("initGit", repoPath),
+  gitStatus: () => ipcRenderer.invoke("gitStatus"),
+  gitAdd: (files: string | string[]) => ipcRenderer.invoke("gitAdd", files),
+  gitCommit: (message: string) => ipcRenderer.invoke("gitCommit", message),
+  gitPush: (remote?: string, branch?: string) => ipcRenderer.invoke("gitPush", remote, branch),
+  gitPull: (remote?: string, branch?: string) => ipcRenderer.invoke("gitPull", remote, branch),
   undoGitCommit: () => ipcRenderer.invoke("undoGitCommit"),
   cloneGitRepository: (repoUrl: string, targetPath: string) =>
     ipcRenderer.invoke("cloneGitRepository", repoUrl, targetPath),
