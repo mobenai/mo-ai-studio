@@ -50,6 +50,41 @@
     </style>
   </head>
   <body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 340">
+      <!-- 背景 -->
+      <rect width="400" height="340" fill="#f0f0f0" />
+
+      <!-- 标题 -->
+      <text x="200" y="30" font-size="16" text-anchor="middle" font-weight="bold">
+        MO vs Cursor Composer Performance
+      </text>
+      <text x="200" y="50" font-size="12" text-anchor="middle">20,000 LOC Project, 80 Tests</text>
+
+      <!-- MO 条形图 -->
+      <rect x="100" y="80" width="80" height="160" fill="#4CAF50" />
+      <text x="140" y="260" font-size="14" text-anchor="middle">MO</text>
+      <text x="140" y="75" font-size="14" text-anchor="middle" font-weight="bold">80%</text>
+
+      <!-- Cursor Composer 条形图 -->
+      <rect x="220" y="140" width="80" height="100" fill="#2196F3" />
+      <text x="260" y="260" font-size="14" text-anchor="middle">Cursor</text>
+      <text x="260" y="135" font-size="14" text-anchor="middle" font-weight="bold">45%</text>
+
+      <!-- Y 轴 -->
+      <line x1="80" y1="240" x2="80" y2="80" stroke="black" stroke-width="2" />
+      <text x="75" y="245" font-size="12" text-anchor="end">0%</text>
+      <text x="75" y="165" font-size="12" text-anchor="end">50%</text>
+      <text x="75" y="85" font-size="12" text-anchor="end">100%</text>
+
+      <!-- X 轴 -->
+      <line x1="80" y1="240" x2="320" y2="240" stroke="black" stroke-width="2" />
+
+      <!-- 图例 (垂直排列) -->
+      <rect x="100" y="280" width="10" height="10" fill="#4CAF50" />
+      <text x="115" y="289" font-size="12">MO (80% success rate)</text>
+      <rect x="100" y="300" width="10" height="10" fill="#2196F3" />
+      <text x="115" y="309" font-size="12">Cursor (45% success rate)</text>
+    </svg>
     <!-- <div id="loading"> -->
     <!-- <div class="spinner"></div> -->
     <!-- <p>正在加载，请稍候...</p> -->

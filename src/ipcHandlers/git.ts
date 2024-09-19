@@ -158,11 +158,17 @@ export const setupGitHandlers = () => {
       // Ensure .ssh directory exists
       await fs.mkdir(sshDir, { recursive: true })
 
-      // Generate SSH key
+      // Generate SSH key with force overwrite
+      const sshKeygenCommand = `ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f "${keyPath}" -N "" -q -y`
       await new Promise((resolve, reject) => {
-        exec(`ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f "${keyPath}" -N ""`, (error) => {
-          if (error) reject(error)
-          else resolve(null)
+        exec(sshKeygenCommand, (error, stdout, stderr) => {
+          if (error) {
+            console.error("Error generating SSH key:", error)
+            reject(error)
+          } else {
+            console.log("SSH key generated successfully")
+            resolve(null)
+          }
         })
       })
 
@@ -173,7 +179,7 @@ export const setupGitHandlers = () => {
       return { success: true, publicKey }
     } catch (error) {
       logGitOperation("Failed to generate SSH key", error)
-      return { success: false, message: "Failed to generate SSH key" }
+      return { success: false, message: "Failed to generate SSH key", error: error.message }
     }
   })
 }

@@ -53,6 +53,21 @@ const updateAPI = {
 
 const bashAPI = {
   executeBash: (script: string) => ipcRenderer.invoke("executeBash", script),
+  executeBashWithOutput: (script: string) => {
+    return new Promise((resolve) => {
+      ipcRenderer.invoke("executeBashWithOutput", script).then(({ success, processId }) => {
+        resolve({ success, processId })
+      })
+
+      ipcRenderer.on("bashOutput", (_, data) => {
+        // 这里可以添加一个回调函数来处理输出
+        console.log("Bash output:", data)
+      })
+    })
+  },
+  stopBashExecution: (processId: string) => ipcRenderer.invoke("stopBashExecution", processId),
+  onBashOutput: (callback: (event: any, data: any) => void) => ipcRenderer.on("bashOutput", callback),
+  offBashOutput: (callback: (event: any, data: any) => void) => ipcRenderer.removeListener("bashOutput", callback),
 }
 
 const linkAPI = {
