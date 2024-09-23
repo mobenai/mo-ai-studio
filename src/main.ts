@@ -1,5 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, shell } from "electron"
-import path from "path"
+import { app, ipcMain, dialog, BrowserWindow } from "electron"
 import http from "http"
 import net from "net"
 import { setupIpcHandlers } from "./ipcHandlers"
@@ -8,6 +7,10 @@ import { updateElectronApp } from "update-electron-app"
 import log from "electron-log"
 import { crashReporter } from "electron"
 import Screenshots from "electron-screenshots"
+import { windowManager } from "./windowManager"
+import { createAppMenu } from "./appMenu"
+import { registerGlobalShortcuts, unregisterAllShortcuts } from "./globalShortcut"
+import { setupErrorHandlers } from "./errorHandler"
 
 updateElectronApp()
 
@@ -19,7 +22,6 @@ const isDev = process.argv.includes("--dev")
 const isDebugger = process.argv.includes("--debugger")
 let port = 3000
 let staticServer: http.Server | null = null
-let mainWindow: BrowserWindow | null = null
 
 // 配置日志
 log.transports.file.level = "info"
@@ -48,193 +50,16 @@ const findAvailablePort = async (startPort: number): Promise<number> => {
   })
 }
 
-const createMainWindow = () => {
-  mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 768,
-    show: false,
-    backgroundColor: "#374151",
-    roundedCorners: true,
-    useContentSize: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: true,
-      webSecurity: false,
-      preload: path.join(__dirname, "preload.js"),
-      devTools: isDev || isDebugger,
-      partition: "persist:main",
-    },
-  })
-
-  return mainWindow
-}
-
-const setupWindowBehavior = (mainWindow: BrowserWindow) => {
-  mainWindow.show()
-
-  if (isDev || isDebugger) {
-    mainWindow.webContents.openDevTools()
-  } else {
-    mainWindow.webContents.on("before-input-event", (event, input) => {
-      const isRefresh = (input.key.toLowerCase() === "r" && (input.control || input.meta)) || input.key === "F5"
-      const isDevTools = input.key.toLowerCase() === "i" && input.control && input.shift
-      if (isRefresh || isDevTools) {
-        event.preventDefault()
-      }
-    })
-  }
-
-  // 处理新窗口的创建
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith("http:") || url.startsWith("https:")) {
-      shell.openExternal(url)
-      return { action: "deny" }
-    }
-    return { action: "allow" }
-  })
-}
-
 const createWindow = async () => {
-  mainWindow = createMainWindow()
-
-  if (isDev) {
-    mainWindow.loadURL(`http://localhost:8080/mo`)
-  } else {
-    mainWindow.loadURL(`https://www.moben.cloud/mo`)
-  }
-
-  setupWindowBehavior(mainWindow)
-}
-
-// 新增：创建子窗口的函数
-const createChildWindow = () => {
-  const childWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    parent: BrowserWindow.getFocusedWindow(),
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: true,
-      webSecurity: false,
-      preload: path.join(__dirname, "preload.js"),
-      devTools: isDev || isDebugger,
-    },
-  })
-
-  if (isDev) {
-    childWindow.loadURL(`http://localhost:8080/mo`)
-  } else {
-    childWindow.loadURL(`http://www.moben.cloud/mo`)
-  }
-
-  if (isDev || isDebugger) {
-    childWindow.webContents.openDevTools()
-  }
-}
-
-// 新增：创建应用程序菜单
-const createAppMenu = () => {
-  const template = [
-    {
-      label: "File",
-      submenu: [{ role: "quit" }],
-    },
-    {
-      label: "Edit",
-      submenu: [
-        { role: "undo" },
-        { role: "redo" },
-        { type: "separator" },
-        { role: "cut" },
-        { role: "copy" },
-        { role: "paste" },
-      ],
-    },
-    {
-      label: "View",
-      submenu: [
-        { role: "reload" },
-        { role: "forceReload" },
-        { role: "toggleDevTools" },
-        { type: "separator" },
-        { role: "resetZoom" },
-        { role: "zoomIn" },
-        { role: "zoomOut" },
-        { type: "separator" },
-        { role: "togglefullscreen" },
-      ],
-    },
-    {
-      label: "Help",
-      submenu: [
-        {
-          label: "Check for Updates",
-          click: async () => {
-            try {
-              const result = await autoUpdater.checkForUpdates()
-              if (result && result.updateInfo) {
-                dialog
-                  .showMessageBox({
-                    type: "info",
-                    title: "Update Available",
-                    message: `A new version (${result.updateInfo.version}) is available. Do you want to download it now?`,
-                    buttons: ["Yes", "No"],
-                  })
-                  .then((response) => {
-                    if (response.response === 0) {
-                      autoUpdater.downloadUpdate()
-                    }
-                  })
-              } else {
-                dialog.showMessageBox({
-                  type: "info",
-                  title: "No Updates",
-                  message: "You are using the latest version.",
-                  buttons: ["OK"],
-                })
-              }
-            } catch (error) {
-              dialog.showErrorBox("Update Error", `An error occurred while checking for updates: ${error.message}`)
-            }
-          },
-        },
-        {
-          label: "About",
-          click: async () => {
-            const { response } = await dialog.showMessageBox({
-              type: "info",
-              title: "About",
-              message: "Mo AI Application",
-              detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${
-                process.versions.chrome
-              }\nNode.js: ${process.versions.node}`,
-              buttons: ["OK"],
-            })
-          },
-        },
-      ],
-    },
-  ]
-
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-}
-
-// 新增：注册全局快捷键
-const registerGlobalShortcut = () => {
-  globalShortcut.register("CommandOrControl+I", () => {
-    if (mainWindow) {
-      mainWindow.setSize(1024, 768)
-      mainWindow.show()
-    }
-  })
+  const mainWindow = windowManager.createMainWindow(isDev, isDebugger)
+  windowManager.loadURL(isDev)
+  windowManager.setupWindowBehavior(isDev, isDebugger)
 }
 
 app.on("ready", () => {
   createWindow()
   setupIpcHandlers(0, isDev)
-  createAppMenu()
-  registerGlobalShortcut()
+  createAppMenu(app)
 
   // 初始化自动更新
   if (!isDev) {
@@ -273,15 +98,9 @@ app.on("ready", () => {
   })
 
   // 新增：设置 IPC 监听器来创建子窗口
-  ipcMain.on("open-child-window", createChildWindow)
-
-  // 新增：处理链接点击
-  ipcMain.handle("open-external-link", (event, url) => {
-    if (url.startsWith("http:") || url.startsWith("https:")) {
-      shell.openExternal(url)
-      return { success: true }
-    }
-    return { success: false, error: "Invalid URL" }
+  ipcMain.on("open-child-window", () => {
+    const childWindow = windowManager.createChildWindow()
+    windowManager.loadURL(isDev)
   })
 
   // 新增：初始化 electron-screenshots
@@ -302,15 +121,8 @@ app.on("ready", () => {
       operation_rectangle_title: "Rectangle",
     },
   })
-  globalShortcut.register("esc", () => {
-    if (screenshots.$win?.isFocused()) {
-      screenshots.endCapture()
-    }
-  })
-  // 设置截图快捷键
-  globalShortcut.register("CommandOrControl+Shift+X", () => {
-    screenshots.startCapture()
-  })
+
+  registerGlobalShortcuts(screenshots, windowManager.mainWindow)
 
   // 处理截图完成事件
   screenshots.on("ok", (event, buffer, bounds) => {
@@ -350,18 +162,11 @@ app.on("quit", () => {
   if (staticServer) {
     staticServer.close()
   }
-  globalShortcut.unregisterAll()
+  unregisterAllShortcuts()
 })
 
-// 全局错误处理
-process.on("uncaughtException", (error) => {
-  log.error("Uncaught Exception:", error)
-  dialog.showErrorBox("An error occurred", `An unexpected error occurred: ${error.message}`)
-})
-
-process.on("unhandledRejection", (reason, promise) => {
-  log.error("Unhandled Rejection at:", promise, "reason:", reason)
-})
+// 设置全局错误处理
+setupErrorHandlers()
 
 // Export necessary functions and variables for IPC handlers
 export { port, isDev }
