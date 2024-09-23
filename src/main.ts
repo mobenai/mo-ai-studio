@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, desktopCapturer, Menu, shell } from "electron"
+import { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, shell } from "electron"
 import path from "path"
 import http from "http"
 import net from "net"
@@ -7,6 +7,7 @@ import { autoUpdater, UpdateInfo } from "electron-updater"
 import { updateElectronApp } from "update-electron-app"
 import log from "electron-log"
 import { crashReporter } from "electron"
+import Screenshots from "electron-screenshots"
 
 updateElectronApp()
 
@@ -28,7 +29,7 @@ crashReporter.start({
   productName: "Mo AI Studio",
   companyName: "Mo Ben Technology",
   submitURL: "https://your-crash-report-server.com/submit", // 替换为你的崩溃报告服务器地址
-  uploadToServer: true
+  uploadToServer: true,
 })
 
 const findAvailablePort = async (startPort: number): Promise<number> => {
@@ -84,11 +85,11 @@ const setupWindowBehavior = (mainWindow: BrowserWindow) => {
 
   // 处理新窗口的创建
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http:') || url.startsWith('https:')) {
+    if (url.startsWith("http:") || url.startsWith("https:")) {
       shell.openExternal(url)
-      return { action: 'deny' }
+      return { action: "deny" }
     }
-    return { action: 'allow' }
+    return { action: "allow" }
   })
 }
 
@@ -264,11 +265,56 @@ app.on("ready", () => {
 
   // 新增：处理链接点击
   ipcMain.handle("open-external-link", (event, url) => {
-    if (url.startsWith('http:') || url.startsWith('https:')) {
+    if (url.startsWith("http:") || url.startsWith("https:")) {
       shell.openExternal(url)
       return { success: true }
     }
-    return { success: false, error: 'Invalid URL' }
+    return { success: false, error: "Invalid URL" }
+  })
+
+  // 新增：初始化 electron-screenshots
+  const screenshots = new Screenshots({
+    singleWindow: true, // 使用单窗口模式以提高性能
+    lang: {
+      magnifier_position_label: "Position",
+      operation_ok_title: "OK",
+      operation_cancel_title: "Cancel",
+      operation_save_title: "Save",
+      operation_redo_title: "Redo",
+      operation_undo_title: "Undo",
+      operation_mosaic_title: "Mosaic",
+      operation_text_title: "Text",
+      operation_brush_title: "Brush",
+      operation_arrow_title: "Arrow",
+      operation_ellipse_title: "Ellipse",
+      operation_rectangle_title: "Rectangle",
+    },
+  })
+
+  // 设置截图快捷键
+  globalShortcut.register("CommandOrControl+Shift+X", () => {
+    screenshots.startCapture()
+  })
+  
+  // 处理截图完成事件
+  screenshots.on("ok", (event, buffer, bounds) => {
+    log.info("Screenshot captured", bounds)
+    // 这里可以处理截图结果，例如保存到文件或发送到渲染进程
+  })
+
+  screenshots.on("cancel", () => {
+    log.info("Screenshot cancelled")
+  })
+
+  // 新增：处理截图请求
+  ipcMain.handle("take-screenshot", async () => {
+    try {
+      await screenshots.startCapture()
+      return { success: true }
+    } catch (error) {
+      log.error("Screenshot error:", error)
+      return { success: false, error: error.message }
+    }
   })
 })
 
@@ -291,13 +337,13 @@ app.on("quit", () => {
 })
 
 // 全局错误处理
-process.on('uncaughtException', (error) => {
-  log.error('Uncaught Exception:', error)
-  dialog.showErrorBox('An error occurred', `An unexpected error occurred: ${error.message}`)
+process.on("uncaughtException", (error) => {
+  log.error("Uncaught Exception:", error)
+  dialog.showErrorBox("An error occurred", `An unexpected error occurred: ${error.message}`)
 })
 
-process.on('unhandledRejection', (reason, promise) => {
-  log.error('Unhandled Rejection at:', promise, 'reason:', reason)
+process.on("unhandledRejection", (reason, promise) => {
+  log.error("Unhandled Rejection at:", promise, "reason:", reason)
 })
 
 // Export necessary functions and variables for IPC handlers

@@ -90,6 +90,11 @@ const gitAPI = {
   generateSSHKey: () => ipcRenderer.invoke("generateSSHKey"),
 }
 
+// 新增：截图API
+const screenshotAPI = {
+  takeScreenshot: () => ipcRenderer.invoke("take-screenshot"),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
@@ -99,4 +104,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   bash: bashAPI,
   link: linkAPI,
   git: gitAPI,
+  screenshot: screenshotAPI, // 新增
 })
