@@ -95,6 +95,11 @@ const screenshotAPI = {
   takeScreenshot: () => ipcRenderer.invoke("take-screenshot"),
 }
 
+// 新增：全局快捷键API
+const shortcutAPI = {
+  setGlobalShortcut: (shortcut: string) => ipcRenderer.invoke("set-global-shortcut", shortcut),
+}
+
 contextBridge.exposeInMainWorld("electronAPI", {
   file: fileAPI,
   env,
@@ -104,5 +109,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   bash: bashAPI,
   link: linkAPI,
   git: gitAPI,
-  screenshot: screenshotAPI, // 新增
+  screenshot: screenshotAPI,
+  shortcut: shortcutAPI, // 新增
 })

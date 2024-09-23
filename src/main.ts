@@ -19,6 +19,7 @@ const isDev = process.argv.includes("--dev")
 const isDebugger = process.argv.includes("--debugger")
 let port = 3000
 let staticServer: http.Server | null = null
+let mainWindow: BrowserWindow | null = null
 
 // 配置日志
 log.transports.file.level = "info"
@@ -48,7 +49,7 @@ const findAvailablePort = async (startPort: number): Promise<number> => {
 }
 
 const createMainWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     show: false,
@@ -94,7 +95,7 @@ const setupWindowBehavior = (mainWindow: BrowserWindow) => {
 }
 
 const createWindow = async () => {
-  const mainWindow = createMainWindow()
+  mainWindow = createMainWindow()
 
   if (isDev) {
     mainWindow.loadURL(`http://localhost:8080/mo`)
@@ -219,10 +220,21 @@ const createAppMenu = () => {
   Menu.setApplicationMenu(menu)
 }
 
+// 新增：注册全局快捷键
+const registerGlobalShortcut = () => {
+  globalShortcut.register("CommandOrControl+I", () => {
+    if (mainWindow) {
+      mainWindow.setSize(1024, 768)
+      mainWindow.show()
+    }
+  })
+}
+
 app.on("ready", () => {
   createWindow()
-  setupIpcHandlers()
+  setupIpcHandlers(0, isDev)
   createAppMenu()
+  registerGlobalShortcut()
 
   // 初始化自动更新
   if (!isDev) {
@@ -290,12 +302,16 @@ app.on("ready", () => {
       operation_rectangle_title: "Rectangle",
     },
   })
-
+  globalShortcut.register("esc", () => {
+    if (screenshots.$win?.isFocused()) {
+      screenshots.endCapture()
+    }
+  })
   // 设置截图快捷键
   globalShortcut.register("CommandOrControl+Shift+X", () => {
     screenshots.startCapture()
   })
-  
+
   // 处理截图完成事件
   screenshots.on("ok", (event, buffer, bounds) => {
     log.info("Screenshot captured", bounds)
@@ -334,6 +350,7 @@ app.on("quit", () => {
   if (staticServer) {
     staticServer.close()
   }
+  globalShortcut.unregisterAll()
 })
 
 // 全局错误处理
