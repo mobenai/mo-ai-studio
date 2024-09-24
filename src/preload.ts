@@ -30,6 +30,8 @@ const fileAPI = {
     ipcRenderer.invoke("executePandoc", inputFile, outputFile, fromFormat, toFormat),
   getFileStats: (filePath: string) => ipcRenderer.invoke("getFileStats", filePath),
   createDirectory: () => ipcRenderer.invoke("createDirectory"),
+  // 新增：showOpenDialog方法
+  showOpenDialog: (options: Electron.OpenDialogOptions) => ipcRenderer.invoke("showOpenDialog", options),
 }
 
 const env = {
