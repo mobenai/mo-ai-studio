@@ -57,7 +57,7 @@ export class WindowManager {
     if (isDev) {
       this.mainWindow.loadURL(`http://localhost:8080/mo`)
     } else {
-      this.mainWindow.loadURL(`https://www.moben.cloud/mo`)
+      this.mainWindow.loadURL(`https://www.mobenai.com.cn/mo`)
     }
   }
 
